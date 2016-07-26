@@ -1,0 +1,4 @@
+*.pyc
+*/cache/*
+*/outputs/*
+*.DS_Store*
