@@ -8,9 +8,11 @@ The functions(s) that actually perform the random walk.
 
 """
 
-import random
+import numpy as np
+from lib import helpers as h
+from lib import prob_funcs as f
 
-def prob_path(data, agents, start_coords, start_angles, end_coord = None, num_steps = None):
+def prob_path(data, agent_ids, start_coords, start_angles, num_steps, end_coord = None):
     """
     Generator function to track the movement of agents along paths.
     
@@ -30,6 +32,34 @@ def prob_path(data, agents, start_coords, start_angles, end_coord = None, num_st
     
     """
     
+    #initialization    
+    agents = h.create_agent_dict(agent_ids = agent_ids, coords = start_coords, angles = start_angles)
+    dims = tuple(reversed(data.shape[:-1]))
+    
+    for i in range(0, num_steps, 1):
+        for agent in agents:
+            poss_coords = h.get_neighbor_coords(coord = agent.coord, upper_bounds = dims)
+            movement_angles = {}
+            weights = []
+            
+            
+            for poss_coord in poss_coords:
+                i = tuple(reversed(poss_coord)) #array/list dimension ordering and Cartesian ordering are opposite
+                theta = h.get_angle(origin = agent.coord, head = poss_coord, reference_vector = None)
+                movement_angles[poss_coord] = theta
+                theta_st, coh, ener = data[i].orientation, data[i].coherence, data[i].energy
+                prob_for_theta = f.prob_function(theta_cur = theta, theta_past = agent.traj_angle, theta_st = theta_st, E = ener, C = coh)
+                weights.append(prob_for_theta)
+            
+            next_coord = np.random.choice(poss_coords, p = weights)
+            next_angle = movement_angles[next_coord]
+            
+            agent.coord, agent.traj_angle = next_coord, next_angle
+            
+        
+        yield agents
+            
+    
     
 #    for each step toward num_step:
 #        for each agent in agents:
@@ -40,7 +70,7 @@ def prob_path(data, agents, start_coords, start_angles, end_coord = None, num_st
 #                get the probability of moving to that location using prob_funcs.prob_function()
 #                shove them all into a dict, mapping 'next location' --> 'probability weight'
 #            
-#            use random.choose(next location, probability weights) to choose where the agent moves
+#            use numpy.random.choose(next location, probability weights) to choose where the agent moves
 #            save new coord in a coords (list)
 #            save angle of trajectory in a traj_angles (list)
 #            

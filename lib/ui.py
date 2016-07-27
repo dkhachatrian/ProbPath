@@ -12,6 +12,7 @@ from PIL import Image
 import os
 from lib import globe as g
 import numpy as np
+from lib import helpers as h
 
 
 def get_image():
@@ -164,29 +165,60 @@ def get_data():
     Returns a NumPy array of the data stacked such that the final axis has the data in order [orientation, coherence, energy].
     """
 
-    print('Hello! Please place relevant files in the dependencies directory of this script. Please have the files saved as a "Text Image" in ImageJ.')
-    
+    data_names = ['orientation', 'coherence', 'energy']
+    fnames = []
     data_list = []
-    data_names = ['orientation', 'coherence', 'energy']    
-
-
-    while len(data_list) < 3:
-        file_name = input("Please state the name of the file corresponding to the " + str(data_names[len(data_list)]) + " for the image of interest, or enter nothing to quit: \n")        
-        while not os.path.isfile(os.path.join(g.dep, file_name)):
-            if file_name == '':
-                sys.exit()
-            file_name = input("File not found! Please check the spelling of the filename input. Re-enter the name of the file corresponding to the " + str(data_names[len(data_list)]) + " for the image of interest (or enter nothing to quit): \n")
-        with open(os.path.join(g.dep, file_name), 'r') as inf:
-            d_layer = np.loadtxt(inf, delimiter = '\t')
-            #d_layer = np.around(d_layer, decimals = 3) #rarely are more than 3 decimal places needed -- just takes more time and space when left unrounded...
-            data_list.append(d_layer) #delimiter for Text Images is tab
-
-    #stack arrays
-
-    data = np.stack(data_list, axis = -1) #axis = -1 makes data the last dimension
-    np.around(data, decimals = 3, out = data)
     
-    return data
+    while len(fnames) < len(data_names):
+        try:
+            file_name = input("Please state the name of the file corresponding to the " + str(data_names[len(data_list)]) + " for the image of interest (saved as a Text Image from ImageJ), or enter nothing to quit: \n")
+            with open(os.path.join(g.dep, file_name), 'r') as inf:
+                d_layer = np.loadtxt(inf, delimiter = '\t')
+            fnames.append(file_name)
+            data_list.append(d_layer)
+        except FileNotFoundError:
+            print('File not found! Please ensure the name was spelled correctly and is in the dependencies directory.')
+        except ValueError:
+            print('File structure not recognized! Please ensure the file was spelled correctly and was saved as a Text Image in ImageJ.')
+    
+    data_shape = data_list[0].shape
+    data_index = np.ndindex(data_shape)
+    tupled_data = np.ndarray(data_shape).tolist()
+    
+    oris, cohs, eners = data_list
+    
+    for i in data_index:
+        c_info = h.coord_info(coord=tuple(reversed(i)), orientation=oris[i], coherence=cohs[i], energy=eners[i])
+        tupled_data[i] = c_info
+        
+    return tupled_data
+
+
+
+
+#    print('Hello! Please place relevant files in the dependencies directory of this script. Please have the files saved as a "Text Image" in ImageJ.')
+#    
+#    data_list = []
+#    data_names = ['orientation', 'coherence', 'energy']    
+#
+#
+#    while len(data_list) < 3:
+#        file_name = input("Please state the name of the file corresponding to the " + str(data_names[len(data_list)]) + " for the image of interest, or enter nothing to quit: \n")        
+#        while not os.path.isfile(os.path.join(g.dep, file_name)):
+#            if file_name == '':
+#                sys.exit()
+#            file_name = input("File not found! Please check the spelling of the filename input. Re-enter the name of the file corresponding to the " + str(data_names[len(data_list)]) + " for the image of interest (or enter nothing to quit): \n")
+#        with open(os.path.join(g.dep, file_name), 'r') as inf:
+#            d_layer = np.loadtxt(inf, delimiter = '\t')
+#            #d_layer = np.around(d_layer, decimals = 3) #rarely are more than 3 decimal places needed -- just takes more time and space when left unrounded...
+#            data_list.append(d_layer) #delimiter for Text Images is tab
+#
+#    #stack arrays
+#
+#    data = np.stack(data_list, axis = -1) #axis = -1 makes data the last dimension
+#    np.around(data, decimals = 3, out = data)
+#    
+#    return data
 
 
 def prompt_saving_paths():

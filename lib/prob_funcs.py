@@ -38,7 +38,8 @@ def prob_function(theta_cur, theta_past, theta_st, E, C):
 
 def orientation_function(traj_angle, theta_st, E, C):
     """ st == 'structure tensor' """
-    return math.exp( (E*C*(traj_angle-theta_st))**2 )
+    # follows expectations in anisotropy in that (E,C) ~ 0 ==> probability is uniform; (E,C) high ==> probability is highest and more pronounced where traj_angle == theta_st
+    return math.exp(-(E*C*(traj_angle-theta_st))**2)
     # Gaussian with expontent (E*C*(traj_angle-theta_ori))**2
     
 def momentum_function(new_traj_angle, past_traj_angle):
@@ -46,4 +47,4 @@ def momentum_function(new_traj_angle, past_traj_angle):
     new_traj_angle = the proposed angle along which the agent would move
     past_traj_angle = the angle along which the agent moved on the previous iteration
     """
-    return math.exp((new_traj_angle-past_traj_angle)**2)
+    return math.exp(-(new_traj_angle-past_traj_angle)**2)

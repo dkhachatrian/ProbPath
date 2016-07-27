@@ -17,9 +17,16 @@ os.chdir(dname)
 
 import math
 
-#RIGHT = 0
-#UPPER_RIGHT = 1
-#UP = 2
+NUM_NEIGHBORS = 8
+
+RIGHT = 0
+UP_RIGHT = 1
+UP = 2
+UP_LEFT = 3
+DOWN_RIGHT = -1
+DOWN = -2
+DOWN_LEFT = -3
+LEFT = 4
 
 
 
