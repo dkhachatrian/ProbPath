@@ -25,6 +25,7 @@ os.chdir(dname)
 from lib import ui
 from lib import globe as g
 from lib import prob_funcs as f
+import prob_path as p
 
 
 # create directories if necessary
@@ -36,4 +37,21 @@ if not os.path.isdir(g.cache_dir):
     os.mkdir(g.cache_dir)
     
     
+# get variables...
 
+#image
+im_name, im = ui.get_image()
+
+    
+agents_generator = p.prob_path(...)
+
+while True:
+    try:
+        agents = next(agents_generator)
+        
+        # create image to visualize locations of agents. Keep
+        # show image to user
+        # save image into a subdirectory of the outputs folder
+        
+    except StopIteration:
+        pass # closing out of program...
