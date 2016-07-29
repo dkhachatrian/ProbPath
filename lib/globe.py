@@ -29,6 +29,9 @@ DOWN_LEFT = -3
 LEFT = 4
 
 
+SHOW_ALL = 0
+FOLLOW_ONE = 1
+
 
 out_dir = os.path.join(dname, 'outputs') #directory for output files
 

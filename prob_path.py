@@ -12,7 +12,7 @@ import numpy as np
 from lib import helpers as h
 from lib import prob_funcs as f
 
-def prob_path(data, agent_ids, start_coords, start_angles, num_steps, end_coord = None):
+def prob_path(data, agents, num_steps, end_coord = None):
     """
     Generator function to track the movement of agents along paths.
     
@@ -33,12 +33,24 @@ def prob_path(data, agent_ids, start_coords, start_angles, num_steps, end_coord 
     """
     
     #initialization    
-    agents = h.create_agent_dict(agent_ids = agent_ids, coords = start_coords, angles = start_angles)
+    
+    #agents = h.create_agent_dict(agent_ids = agent_ids, coords = start_coords, angles = start_angles)
     dims = tuple(reversed(data.shape[:-1]))
     
-    for i in range(0, num_steps, 1):
+    for x in range(0, num_steps, 1):
         for agent in agents:
             poss_coords = h.get_neighbor_coords(coord = agent.coord, upper_bounds = dims)
+            
+            coords_info = []
+            for poss_coord in poss_coords:
+                coords_info.append(h.access_data(data, *poss_coord))
+            
+            will_move = f.will_move(cur_info = h.access_data(data, *agent.coord), neighbors_info = coords_info)
+            
+            if not will_move:
+                continue #no need to update coords/angles
+                
+                
             movement_angles = {}
             weights = []
             
@@ -51,14 +63,16 @@ def prob_path(data, agent_ids, start_coords, start_angles, num_steps, end_coord 
                 prob_for_theta = f.prob_function(theta_cur = theta, theta_past = agent.traj_angle, theta_st = theta_st, E = ener, C = coh)
                 weights.append(prob_for_theta)
             
-            next_coord = np.random.choice(poss_coords, p = weights)
-            next_angle = movement_angles[next_coord]
-            
-            agent.coord, agent.traj_angle = next_coord, next_angle
+
+                next_coord = np.random.choice(poss_coords, p = weights)
+                next_angle = movement_angles[next_coord]
+                
+                agent.coord, agent.traj_angle = next_coord, next_angle
             
         
         yield agents
             
+        # TODO: calculate a probability of agent not moving?
     
     
 #    for each step toward num_step:

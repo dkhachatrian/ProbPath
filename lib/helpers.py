@@ -59,14 +59,16 @@ def get_dtheta(theta1,theta2):
 
 
 
-def create_agent_dict(agent_ids, coords, angles):
+def create_agent_dict(num_agents, coords, angles):
     """ From the lists provided, create a mapping of Agent_ID --> namedtuple(coord, angle). """
     agents_dict = {}
     
 #    if len(agents) != len(coords) or len(coords) != len(angles):
 #        dosomething
     
-    for i,x in agent_ids:
+    agent_ids = (i for i in range(num_agents)) # don't think we need to be too fancy with agent IDs...
+    
+    for i,x in enumerate(agent_ids):
         agents_dict[x] = agent_info(coord = coords[i], traj_angle = angles[i])
     
     return agents_dict

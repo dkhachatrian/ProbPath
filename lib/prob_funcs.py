@@ -11,6 +11,7 @@ The mathematical functions determining the probabilities used by the agent when 
 import math
 from lib import helpers as h
 import numpy as np
+import random
 
 #
 #def orientation_map(data):
@@ -48,3 +49,20 @@ def momentum_function(new_traj_angle, past_traj_angle):
     past_traj_angle = the angle along which the agent moved on the previous iteration
     """
     return math.exp(-(new_traj_angle-past_traj_angle)**2)
+
+
+def will_move(cur_info, neighbors_info):
+    """
+    Probabilistically determine whether an agent will move from the coord corresponding to cur_info, based on cur_info and neighbors_info
+    """
+    #will just do it by energy values
+    
+    cur_e = cur_info.energy
+    neighbors_e = sum(n.energy for n in neighbors_info)
+    
+    p_move = neighbors_e / (cur_e + neighbors_e)
+    
+    rand = random.random()
+    
+    return (rand < p_move)
+    
