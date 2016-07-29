@@ -26,9 +26,9 @@ def place_agents_on_image(agents, image, color = 'yellow'):
     '''
     
     im = prep_bg_image(image)
-    loc_data = np.zeros(np.array(im).shape[:-1]) #-1 to remove the [RGB] axis    
+    #loc_data = np.zeros(np.array(im).shape)  
     fig, ax = pylab.subplots()
-    agent_im = Image.fromarray(loc_data)
+    agent_im = Image.fromarray(np.zeros(im.shape))
     #overlay = overlay
     ax.imshow(overlay)
     color_val = colors.cnames('yellow')
@@ -60,7 +60,7 @@ def follow_agent_path_on_image(agent, image, history_color = 'blue', agent_color
     path_im_data = np.zeros(im.shape)
     
     hist_c_val = colors.cnames(history_color)
-    agent_c_val = colors.cnames(agent_color)
+    agent_c_val = np.array(colors.cnames(agent_color)*255).astype('uint8') #kind of tacky, I know...
     
     history = defaultdict(int)
     # how to best leave trace? How to best visualize multiple visits to same pixel? 
@@ -68,7 +68,13 @@ def follow_agent_path_on_image(agent, image, history_color = 'blue', agent_color
     
     while True:
         history[agent.coord] += 1
-        pass
+        path_im_data = prep_agent_im_data(coord2count = history, image, hist_c_val)
+        agent_im.set_data(path_im_data)
+        plt.colorbar(mappable = agent_im) #create colorbar *before* putting blue pixel for current position
+        h.set_value(path_im_data, agent.coord, agent_c_val) 
+        agent_im.set_data(path_im_data) #reupdate image...
+        fig.canvas.draw()
+        agent = yield
         # TODO: save image to a subdirectory, to be able to make movie
         # TODO: pause? depends on how fast the program actually runs...
     
