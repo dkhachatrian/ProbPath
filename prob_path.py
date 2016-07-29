@@ -18,7 +18,7 @@ def prob_path(data, agent_ids, start_coords, start_angles, num_steps, end_coord 
     
     Inputs:
     data = a 4D NumPy array with coordinates [z,y,x][d], where d determines what information about the pixel is received: orientation(0), coherence(1), and energy(2)
-    num_agents = number of agents to walk along the model. Set to 1 -- no assumptions about interdependence between agents has yet been made.
+    agent_ids = number of agents to walk along the model. Set to [1] -- no assumptions about interdependence between agents has yet been made.
     start_coords = a list of length (num_agents) describing the starting coordinates of the agents.
     start_angles = a list of length (num_agents) describing the initial trajectory angles (to the horizontal, with range [-pi,pi]) of the agents.
     end_coord = a desired end location for the agent. If this is specified, the number of iterations ('steps') it took to reach the end will be logged for each agent in a list.

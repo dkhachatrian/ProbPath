@@ -23,6 +23,6 @@ def load_cache(fname):
 
 
 def save_to_cache(var, fname):
-    "Saves var into a file named name in the cache directoyr. """
+    """ Saves var into a file named name in the cache directory. """
     with open(os.path.join(g.cache_dir, fname), mode = 'wb') as inf:
         pickle.dump(var, inf, pickle.HIGHEST_PROTOCOL)

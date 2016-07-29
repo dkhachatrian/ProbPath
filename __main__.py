@@ -26,6 +26,7 @@ from lib import ui
 from lib import globe as g
 from lib import prob_funcs as f
 import prob_path as p
+from lib import visualizer as v
 
 
 # create directories if necessary
@@ -44,6 +45,8 @@ im_name, im = ui.get_image()
 
     
 agents_generator = p.prob_path(...)
+visuals_generator = v.place_agents_on_image(...)
+
 
 while True:
     try:
