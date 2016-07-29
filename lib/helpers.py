@@ -80,6 +80,10 @@ def access_data(data, x, y, z = 0):
     return data[z,y,x]
 
 
+def set_value(data, coord, value):
+    """ Sets value of NumPy array at what would correspond to the resulting Image as coord, with value. """
+    data[tuple(reversed(coord))] = value
+
 
 
 def get_neighbor_coords(coord, lower_bounds = (0,0,0), upper_bounds):

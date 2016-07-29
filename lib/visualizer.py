@@ -17,6 +17,7 @@ from matplotlib import pylab
 from matplotlib import colors
 import numpy as np
 from collections import Counter
+from collections import defaultdict
 
 def place_agents_on_image(agents, image, color = 'yellow'):
     '''
@@ -30,10 +31,11 @@ def place_agents_on_image(agents, image, color = 'yellow'):
     agent_im = Image.fromarray(loc_data)
     #overlay = overlay
     ax.imshow(overlay)
+    color_val = colors.cnames('yellow')
 
     while True:
-
-        agent_im.set_data(prep_agents_im_data(agents,image,color))
+        counts = Counter((agent.coord for agent in agents))
+        agent_im.set_data(prep_agent_im_data(coord2count = counts, image, color_val))
         overlay.set_data(np_array) #overlay images
         plt.colorbar(mappable = agent_im) #create/update colorbar
         fig.canvas.draw() #update image
@@ -49,7 +51,7 @@ def place_agents_on_image(agents, image, color = 'yellow'):
     #imshow(waoeignapowin)
     #colorbar()
 
-def follow_agent_path_on_image(agent, image, color = 'yellow'):
+def follow_agent_path_on_image(agent, image, history_color = 'blue', agent_color = 'yellow'):
     '''
     Follow a single agent on its random walk through the image space, denoting the path with color (color). Leaves a trace of subdued (color) when the agent moves from this position, which becomes slightly brighter as the agent visits that location more times.
     '''
@@ -57,11 +59,15 @@ def follow_agent_path_on_image(agent, image, color = 'yellow'):
     im = prep_bg_image(image)
     path_im_data = np.zeros(im.shape)
     
+    hist_c_val = colors.cnames(history_color)
+    agent_c_val = colors.cnames(agent_color)
+    
+    history = defaultdict(int)
     # how to best leave trace? How to best visualize multiple visits to same pixel? 
     
     
     while True:
-        
+        history[agent.coord] += 1
         pass
         # TODO: save image to a subdirectory, to be able to make movie
         # TODO: pause? depends on how fast the program actually runs...
@@ -93,7 +99,7 @@ def prep_bg_image(image, alpha = 0.3):
 
 
 # pass in a coord2counts variable instead of agents? Generalize creation of agent overlay for both many_agents_at_once and follow_agent_path
-def prep_agents_im_data(agents, image, color):
+def prep_agent_im_data(coord2count, image, color):
     '''
     Prepare image overlay for agents with color (passed in as an RGB tuple with ranges (0-1)).
     Does *not* create colorbar.
@@ -112,10 +118,12 @@ def prep_agents_im_data(agents, image, color):
     loc_data = np.zeros(image.convert('L').shape)
     
     # count will determine saturation (bright yellow ==> most agents, white ==> )
-    counts = Counter((agent.coord for agent in agents))
-    max_c = max(counts.values())
-    #scalar = max_val/max(counts.values()) #scale factor for alpha channel
-    for coord in counts:
+#    counts = Counter((agent.coord for agent in agents))
+#    max_c = max(counts.values())
+#    #scalar = max_val/max(counts.values()) #scale factor for alpha channel
+#    for coord in counts:
+    max_c = max(coord2count.values())
+    for coord in coord2count:
         arr_coord = tuple(reversed(coord))
         loc_data[arr_coord] = counts[coord]/max_c #update array with locations
         
